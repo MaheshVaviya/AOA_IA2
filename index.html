@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>All Pair Shortest Paths Simulation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    input[type="number"] {
+      width: 60px;
+      padding: 5px;
+      margin: 2px;
+    }
+    button {
+      padding: 8px 16px;
+      margin-top: 10px;
+    }
+    table {
+      border-collapse: collapse;
+      margin: 10px 0;
+    }
+    td, th {
+      border: 1px solid #333;
+      padding: 10px;
+      text-align: center;
+      min-width: 50px;
+    }
+    .iteration {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>All Pair Shortest Paths Simulation</h2>
+
+  <label>Enter number of vertices:
+    <input type="number" id="numVertices" min="2" max="10" value="4">
+  </label>
+  <button onclick="generateMatrixInput()">Create Matrix</button>
+
+  <div id="matrixInput"></div>
+  <div>
+    <button onclick="runFloydWarshall()">Run Algorithm</button>
+  </div>
+
+  <div id="output"></div>
+
+  <script>
+    let INF = 1000;
+    let inputTable;
+
+    function generateMatrixInput() {
+      const n = parseInt(document.getElementById('numVertices').value);
+      const container = document.getElementById('matrixInput');
+      container.innerHTML = '';
+
+      const table = document.createElement('table');
+      inputTable = [];
+
+      for (let i = 0; i < n; i++) {
+        const row = [];
+        const tr = document.createElement('tr');
+        for (let j = 0; j < n; j++) {
+          const td = document.createElement('td');
+          const input = document.createElement('input');
+          input.type = 'number';
+          input.placeholder = i === j ? '0' : 'INF';
+          input.value = i === j ? 0 : '';
+          input.dataset.row = i;
+          input.dataset.col = j;
+          td.appendChild(input);
+          tr.appendChild(td);
+          row.push(input);
+        }
+        table.appendChild(tr);
+        inputTable.push(row);
+      }
+      container.appendChild(table);
+    }
+
+    function runFloydWarshall() {
+      const outputDiv = document.getElementById('output');
+      outputDiv.innerHTML = '';
+
+      const n = inputTable.length;
+      let matrix = [];
+
+      for (let i = 0; i < n; i++) {
+        matrix[i] = [];
+        for (let j = 0; j < n; j++) {
+          const val = inputTable[i][j].value;
+          matrix[i][j] = val === '' ? INF : parseInt(val);
+        }
+      }
+
+      for (let k = 0; k < n; k++) {
+        for (let i = 0; i < n; i++) {
+          for (let j = 0; j < n; j++) {
+            if (matrix[i][k] + matrix[k][j] < matrix[i][j]) {
+              matrix[i][j] = matrix[i][k] + matrix[k][j];
+            }
+          }
+        }
+        printMatrix(matrix, k + 1, outputDiv);
+      }
+    }
+
+    function printMatrix(matrix, iteration, container) {
+      const section = document.createElement('div');
+      section.classList.add('iteration');
+      const title = document.createElement('h3');
+      title.textContent = `Iteration ${iteration}`;
+      section.appendChild(title);
+
+      const table = document.createElement('table');
+      matrix.forEach(row => {
+        const tr = document.createElement('tr');
+        row.forEach(val => {
+          const td = document.createElement('td');
+          td.textContent = val === INF ? '-1' : val;
+          tr.appendChild(td);
+        });
+        table.appendChild(tr);
+      });
+
+      section.appendChild(table);
+      container.appendChild(section);
+    }
+  </script>
+</body>
+</html>
